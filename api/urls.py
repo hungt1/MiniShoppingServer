@@ -1,14 +1,12 @@
 from django.urls import path, include
 from .views import (
-    AddProduct,
-    AddUser,
-    AddFollowings,
-    GetProductsQuery,
-    GetProduct
+    ProductView, UserView, FavoriteView, VoucherView
 )
 
 urlpatterns = [
-    path("product/add", AddProduct.as_view()),
-    path("product", GetProductsQuery.as_view()),
-    path("product/<int:product_id>", GetProduct.as_view()),
+    path("product", ProductView.as_view()),
+    path("user", UserView.as_view()),
+    path("favorite", FavoriteView.as_view(http_method_names=["post"])),
+    path("favorite/<str:hash>", FavoriteView.as_view(http_method_names=["get"])),
+    path("voucher/<str:code>", VoucherView.as_view()),
 ]  

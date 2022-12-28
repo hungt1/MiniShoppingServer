@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Product, User, Follow, Purchase
+from .models import Product, User, Favorite, Location, Voucher
 
 class ProductSerializer(serializers.ModelSerializer):
     class Meta:
@@ -11,12 +11,17 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = "__all__"
 
-class FollowSerializer(serializers.ModelSerializer):
+class FavoriteSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Follow
+        model = Favorite
         fields = "__all__"
 
-class PurchaseSerializer(serializers.ModelSerializer):
+class LocationSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Purchase
+        model = Location
+        fields = "__all__"
+
+class VoucherSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Voucher
         fields = "__all__"

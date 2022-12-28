@@ -14,26 +14,24 @@ class Product(models.Model):
 class User(models.Model):
     email = models.CharField(max_length=1000, primary_key=True)
     balance = models.FloatField(default=0.0)
+    hash = models.CharField(max_length=64)
     def __str__(self):
         return self.email
 
-class Follow(models.Model):
-    id = models.AutoField(primary_key=True)
-    user = models.ForeignKey(User, to_field="email", related_name="user_f", on_delete=models.CASCADE)
-    product = models.ForeignKey(Product, to_field="id", related_name="product_f", on_delete=models.CASCADE)
+class Favorite(models.Model):
+    user = models.ForeignKey(User, to_field="email", on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, to_field="id", on_delete=models.CASCADE)
+    def __str__(self):
+        return self.user.email + " - " + self.product.name
+
+class Location(models.Model):
+    user = models.ForeignKey(User, to_field="email", on_delete=models.CASCADE)
+    address = models.CharField(max_length=1000)
+    def __str__(self):
+        return self.user.email + " - " + self.address
     
+class Voucher(models.Model):
+    code = models.CharField(max_length=1000, primary_key=True)
+    discount = models.FloatField()
     def __str__(self):
-        return self.user.email + " " + self.product.name
-
-    class Meta:
-        constraints = [
-            models.UniqueConstraint(fields=['user', 'product'], name='unique_follow')
-        ]
-
-class Purchase(models.Model):
-    id = models.AutoField(primary_key=True)
-    user = models.ForeignKey(User, to_field="email", related_name="user_p", on_delete=models.CASCADE)
-    product = models.ForeignKey(Product, to_field="id", related_name="product_p", on_delete=models.CASCADE)
-    quantity = models.IntegerField()
-    def __str__(self):
-        return self.user.email + " " + self.product.name
+        return self.code
