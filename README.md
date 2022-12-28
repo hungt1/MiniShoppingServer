@@ -1,6 +1,6 @@
 # MiniShoppingServer
 
-**POST:** localhost:`port`/api/user - dùng khi đăng nhập hoặc login
+**POST:** localhost:`port`/api/user - dùng khi đăng kí hoặc đăng nhập
 ```
 {
     "email": "a"
