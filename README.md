@@ -18,6 +18,7 @@
 ```
 
 **GET:** localhost:`port`/api/product?type=category&query=haha - lấy sản phẩm theo category
+
 **Response:** 
 ```
 {
@@ -28,6 +29,7 @@
 ```
 
 **GET:** localhost:`port`/api/product?type=search&query=voucher - lấy sản phẩm theo search
+
 **Response:** 
 ```
 {
@@ -44,6 +46,7 @@
     "product": <product_id>
 }
 ```
+
 **Response:** 
 ```
 {
@@ -52,6 +55,7 @@
 ```
 
 **GET:** localhost:`port`>/api/favorite/`hash` - lấy sản phẩm yêu thích theo hash
+
 **Response:** 
 ```
 {
@@ -62,6 +66,7 @@
 ```
 
 **GET:** localhost:`port`/api/voucher/HAHA - lấy discount theo code
+
 **Response:** 
 ```
 {
