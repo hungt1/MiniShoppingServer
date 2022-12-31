@@ -5,6 +5,11 @@ from .models import Product, User, Favorite, Location, Voucher
 from .serializers import ProductSerializer, UserSerializer, FavoriteSerializer, LocationSerializer, VoucherSerializer
 from rest_framework.parsers import JSONParser
 from hashlib import sha256
+from .database_helper import open_db, copy_table
+from django.http import HttpResponse
+from .email_handler import send
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 
 # Create your views here.
 class ProductView(APIView):
@@ -115,10 +120,74 @@ class VoucherView(APIView):
         except Exception as e:
             return Response({"message": "Something went wrong"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+class LocationView(APIView):
+    def post(self, request):
+        try:
+            email = request.data["email"]
+            location = request.data["location"]
+
+            if not User.objects.filter(email=email).exists():
+                return Response({"message": "Invalid email"}, status=status.HTTP_400_BAD_REQUEST)
+
+            if not Location.objects.filter(user=email).exists():
+                data_dict = {
+                    "user": email,
+                    "lat": location["lat"],
+                    "lng": location["lng"],
+                }
+                data_serializer = LocationSerializer(data=data_dict)
+                if data_serializer.is_valid():
+                    data_serializer.save()
+                    return Response({"message": "success"}, status=status.HTTP_200_OK)
+                else:
+                    print(data_serializer.errors)
+                    return Response({"message": "Something went wrong"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            else:
+                location_obj = Location.objects.get(user=email)
+                location_obj.lat = location["lat"]
+                location_obj.lng = location["lng"]
+                location_obj.save()
+                return Response({"message": "success"}, status=status.HTTP_200_OK)
+        except Exception as e:
+            print(e)
+            return Response({"message": "Something went wrong"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+    def get(self, request, *args, **kwargs):
+        try:
+            hash = kwargs["hash"]
+            email = User.objects.get(hash=hash).email
+            location = Location.objects.get(user=email)
+            data_dict = {
+                "lat": location.lat,
+                "lng": location.lng,
+            }
+            return Response({"message": "success", "location": data_dict}, status=status.HTTP_200_OK)
+        except Exception as e:
+            print(e)
+            return Response({"message": "Something went wrong"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 class UpdateDatabase(APIView):
     def get(self, request):
         try:
-            pass
+            copy_table("api_product", "db.sqlite3", "clone.sqlite3")
+            db_file = open("clone.sqlite3", "rb")
+            response = HttpResponse(db_file, content_type="application/x-sqlite3")
+            response["Content-Disposition"] = "attachment; filename=db.sqlite3"
+            return response
+        except Exception as e:
+            print(e)
+            return Response({"message": "Something went wrong"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class PurchaseView(APIView):
+    def post(self, request):
+        try:
+            hash = request.data["hash"]
+            email = User.objects.get(hash=hash).email
+            rep = MIMEMultipart('mixed')
+            rep.attach(MIMEText("hehehe"))
+            send(rep, email)
+            return Response({"message": "success"}, status=status.HTTP_200_OK)
         except Exception as e:
             print(e)
             return Response({"message": "Something went wrong"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

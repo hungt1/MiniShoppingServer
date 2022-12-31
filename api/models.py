@@ -21,17 +21,21 @@ class User(models.Model):
 class Favorite(models.Model):
     user = models.ForeignKey(User, to_field="email", on_delete=models.CASCADE)
     product = models.ForeignKey(Product, to_field="id", on_delete=models.CASCADE)
+    
     def __str__(self):
         return self.user.email + " - " + self.product.name
 
 class Location(models.Model):
     user = models.ForeignKey(User, to_field="email", on_delete=models.CASCADE)
-    address = models.CharField(max_length=1000)
+    lat = models.FloatField(default=0.0)
+    lng = models.FloatField(default=0.0)
+
     def __str__(self):
-        return self.user.email + " - " + self.address
+        return self.user.email + " - " + str(self.lat) + " - " + str(self.lng)
     
 class Voucher(models.Model):
     code = models.CharField(max_length=1000, primary_key=True)
     discount = models.FloatField()
+
     def __str__(self):
         return self.code

@@ -73,3 +73,60 @@
     "discount": 30.0
 }
 ```
+
+**GET:** localhost:`port`/api/database - download database
+
+**POST:** localhost:`port`/api/location - thêm/update địa chỉ người dùng 
+```
+{
+    "email": "a",
+    "location": {
+        "lat": 0.0,
+        "lng": 0.0
+    }
+}
+```
+
+**Response:** 
+```
+{
+    "message": "success"
+}
+```
+
+**GET:** localhost:`port`/api/location/`hash` - lấy địa chỉ người dùng theo hash
+
+**Response:** 
+```
+{
+    "location": {
+        "lat": 0.0,
+        "lng": 0.0
+    }
+}
+```
+
+**POST:** localhost:`port`/api/purchase - thanh toán
+```
+{
+    "hash": "3e23e8160039594a33894f6564e1b1348bbd7a0088d42c4acb73eeaed59c009d",
+    "products": [
+        {
+            "id": 1,
+            "quantity": 1
+        },
+        {
+            "id": 2,
+            "quantity": 2
+        }
+    ],
+    "voucher": "HAHA"
+}
+```
+
+**Response:** 
+```
+{
+    "balance": 0.0,
+}
+```
