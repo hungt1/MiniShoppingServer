@@ -43,7 +43,8 @@
 ```
 {
     "hash": "3e23e8160039594a33894f6564e1b1348bbd7a0088d42c4acb73eeaed59c009d",
-    "product": <product_id>
+    "product": <product_id>,
+    "action": "add"/"remove"
 }
 ```
 
