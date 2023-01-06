@@ -71,7 +71,8 @@
 **Response:** 
 ```
 {
-    "discount": 30.0
+    "discount": 30.0,
+    "quantity": 1
 }
 ```
 

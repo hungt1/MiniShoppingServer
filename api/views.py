@@ -122,10 +122,13 @@ class VoucherView(APIView):
         try:
             code = kwargs["code"]
             try:
-                discount = Voucher.objects.get(code=code).discount
+                curVoucher = Voucher.objects.get(code=code)
+                discount = curVoucher.discount
+                quantity = curVoucher.quantity
             except:
                 discount = 0
-            return Response({"discount": discount}, status=status.HTTP_200_OK)   
+                quantity = 0
+            return Response({"discount": discount, "quantity": quantity}, status=status.HTTP_200_OK)   
         except Exception as e:
             return Response({"message": "Something went wrong"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 

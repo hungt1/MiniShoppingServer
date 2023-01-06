@@ -39,6 +39,7 @@ class Location(models.Model):
 class Voucher(models.Model):
     code = models.CharField(max_length=1000, primary_key=True)
     discount = models.FloatField()
+    quantity = models.IntegerField(default=1)
 
     def __str__(self):
         return self.code
