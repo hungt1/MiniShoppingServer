@@ -5,11 +5,12 @@ from .models import Product, User, Favorite, Location, Voucher
 from .serializers import ProductSerializer, UserSerializer, FavoriteSerializer, LocationSerializer, VoucherSerializer
 from rest_framework.parsers import JSONParser
 from hashlib import sha256
-from .database_helper import open_db, copy_table
+from .database_helper import copy_table
 from django.http import HttpResponse
 from .email_handler import send
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+from .search import search
 
 # Create your views here.
 class ProductView(APIView):
@@ -44,8 +45,7 @@ class ProductView(APIView):
                 ret = [product["id"] for product in products]
                 return Response({"products": ret}, status=status.HTTP_200_OK)
             else:
-                products = Product.objects.filter(name__icontains=query).values("id")
-                ret = [product["id"] for product in products]
+                ret = search(query)
                 return Response({"products": ret}, status=status.HTTP_200_OK)
         except Exception as e:
             print(e)
@@ -83,17 +83,26 @@ class FavoriteView(APIView):
         try:
             hash = request.data["hash"]
             email = User.objects.get(hash=hash).email
+            action = request.data["action"]
             data_dict = {
                 "user": email,
                 "product": request.data["product"],
             }
-            data_serializer = FavoriteSerializer(data=data_dict)
-            if data_serializer.is_valid():
-                data_serializer.save()
-                return Response({"message": "success"}, status=status.HTTP_200_OK)
-            else:
-                print(data_serializer.errors)
-                return Response({"message": "Something went wrong"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            if action == "add":
+                if Favorite.objects.filter(user=email, product=request.data["product"]).exists():
+                    return Response({"message": "Product already exists"}, status=status.HTTP_200_OK)
+                data_serializer = FavoriteSerializer(data=data_dict)
+                if data_serializer.is_valid():
+                    data_serializer.save()
+                    return Response({"message": "Product added successfully"}, status=status.HTTP_200_OK)
+                else:
+                    print(data_serializer.errors)
+                    return Response({"message": "Something went wrong"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            elif action == "remove":
+                if not Favorite.objects.filter(user=email, product=request.data["product"]).exists():
+                    return Response({"message": "Product does not exist"}, status=status.HTTP_200_OK)
+                Favorite.objects.filter(user=email, product=request.data["product"]).delete()
+                return Response({"message": "Product removed successfully"}, status=status.HTTP_200_OK)
         except Exception as e:
             print(e)
             return Response({"message": "Something went wrong"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

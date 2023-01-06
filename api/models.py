@@ -25,6 +25,9 @@ class Favorite(models.Model):
     def __str__(self):
         return self.user.email + " - " + self.product.name
 
+    class Meta:
+        unique_together = (('user', 'product'),)
+
 class Location(models.Model):
     user = models.ForeignKey(User, to_field="email", on_delete=models.CASCADE)
     lat = models.FloatField(default=0.0)
