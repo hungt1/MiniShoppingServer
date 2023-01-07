@@ -8,9 +8,11 @@ from hashlib import sha256
 from .database_helper import copy_table
 from django.http import HttpResponse
 from .email_handler import send
-from email.mime.multipart import MIMEMultipart
-from email.mime.text import MIMEText
+# from email.mime.multipart import MIMEMultipart
+# from email.mime.text import MIMEText
 from .search import search
+from pretty_html_table import build_table
+import pandas as pd
 
 # Create your views here.
 class ProductView(APIView):
@@ -198,9 +200,59 @@ class PurchaseView(APIView):
             if not User.objects.filter(hash=hash).exists():
                 return Response({"message": "Invalid hash"}, status=status.HTTP_400_BAD_REQUEST)
             email = User.objects.get(hash=hash).email
-            rep = MIMEMultipart('mixed')
-            rep.attach(MIMEText("hehehe"))
-            send(rep, email)
+            products = request.data["products"]
+            voucher = request.data["voucher"]
+            if Voucher.objects.filter(code=voucher).exists():
+                voucher_obj = Voucher.objects.get(code=voucher)
+                if voucher_obj.quantity > 0:
+                    voucher_obj.quantity -= 1
+                    discount = voucher_obj.discount
+                    voucher_obj.save()
+                else:
+                    discount = 0
+            else:
+                discount = 0
+            products_id = [product["id"] for product in products]
+            quantity_list = [product["quantity"] for product in products]
+            products_obj = Product.objects.filter(id__in=products_id)
+
+            total = 0
+            data = {"Sản phẩm": [], "Số lượng": [], "Giá": [], "Thành tiền": []}
+            for i, product in enumerate(products_obj):
+                cur = product.price * quantity_list[i]
+                data["Sản phẩm"].append(product.name)
+                data["Số lượng"].append(quantity_list[i])
+                data["Giá"].append("{:,}".format(int(product.price)) + "đ")
+                data["Thành tiền"].append("{:,}".format(int(cur)) + "đ")
+                total += cur
+
+            data["Sản phẩm"].append("Giảm giá")
+            data["Số lượng"].append(1)
+            data["Giá"].append("-" + str(discount) + "%")
+            data["Thành tiền"].append("-" + "{:,}".format(int(total * (discount / 100))) + "đ")
+            total = total - int(total * (discount / 100))
+
+            data["Sản phẩm"].append("Phí vận chuyển")
+            data["Số lượng"].append(1)
+            data["Giá"].append("20,000đ")
+            data["Thành tiền"].append("20,000đ")
+            total = total + 20000
+
+            data["Sản phẩm"].append("VAT")
+            data["Số lượng"].append(1)
+            data["Giá"].append("8%")
+            data["Thành tiền"].append("{:,}".format(int(total * (8 / 100))) + "đ")
+            total = total + total * (8 / 100)
+
+            data["Sản phẩm"].append("Tổng tiền")
+            data["Số lượng"].append(1)
+            data["Giá"].append("")
+            data["Thành tiền"].append("{:,}".format(int(total)) + "đ")
+
+            df = pd.DataFrame(data)
+            body = df.to_html(index=False)
+            send(body, email)
+
             return Response({"message": "success"}, status=status.HTTP_200_OK)
         except Exception as e:
             print(e)

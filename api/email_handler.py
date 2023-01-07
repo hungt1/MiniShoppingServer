@@ -1,6 +1,8 @@
 import ssl
 import smtplib
 import email
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
 
 import yaml
 
@@ -10,10 +12,13 @@ with open('./api/config.yml') as f:
 USERNAME = config['EMAIL']
 PASSWORD = config['PASSWORD']
 
-def send(reply_email, to):
+def send(body, to):
+    reply_email = MIMEMultipart()
+    reply_email['Subject'] = 'Cảm ơn bạn đã đặt hàng'
     reply_email['Message-ID'] = email.utils.make_msgid()
     reply_email['To'] = to
     reply_email['From'] = USERNAME
+    reply_email.attach(MIMEText(body, 'html'))
     
     context = ssl.create_default_context()
     with smtplib.SMTP_SSL('smtp.gmail.com', 465, context=context) as conn:
