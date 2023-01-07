@@ -1,0 +1,6 @@
+Django
+djangorestframework
+yaml
+scikit-learn
+pandas
+Pillow

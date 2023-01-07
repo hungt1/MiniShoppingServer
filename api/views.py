@@ -11,7 +11,6 @@ from .email_handler import send
 # from email.mime.multipart import MIMEMultipart
 # from email.mime.text import MIMEText
 from .search import search
-from pretty_html_table import build_table
 import pandas as pd
 
 # Create your views here.
@@ -212,6 +211,7 @@ class PurchaseView(APIView):
                     discount = 0
             else:
                 discount = 0
+            
             products_id = [product["id"] for product in products]
             quantity_list = [product["quantity"] for product in products]
             products_obj = Product.objects.filter(id__in=products_id)
