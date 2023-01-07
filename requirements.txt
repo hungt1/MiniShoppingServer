@@ -1,6 +1,6 @@
 Django
 djangorestframework
-yaml
+pyyaml
 scikit-learn
 pandas
 Pillow

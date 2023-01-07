@@ -1,4 +1,5 @@
 service/__pycache__/
 req.txt
-api/__pycache__/
+api/__pycache__/*.pyc
 api/migrations/__pycache__/
+venv/
