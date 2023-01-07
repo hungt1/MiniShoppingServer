@@ -135,11 +135,11 @@ class VoucherView(APIView):
 class LocationView(APIView):
     def post(self, request):
         try:
-            email = request.data["email"]
+            hash = request.data["hash"]
+            if not User.objects.filter(hash=hash).exists():
+                return Response({"message": "Invalid hash"}, status=status.HTTP_400_BAD_REQUEST)
+            email = User.objects.get(hash=hash).email
             location = request.data["location"]
-
-            if not User.objects.filter(email=email).exists():
-                return Response({"message": "Invalid email"}, status=status.HTTP_400_BAD_REQUEST)
 
             if not Location.objects.filter(user=email).exists():
                 data_dict = {
@@ -195,6 +195,8 @@ class PurchaseView(APIView):
     def post(self, request):
         try:
             hash = request.data["hash"]
+            if not User.objects.filter(hash=hash).exists():
+                return Response({"message": "Invalid hash"}, status=status.HTTP_400_BAD_REQUEST)
             email = User.objects.get(hash=hash).email
             rep = MIMEMultipart('mixed')
             rep.attach(MIMEText("hehehe"))
