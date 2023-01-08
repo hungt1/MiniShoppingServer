@@ -3,4 +3,5 @@ djangorestframework
 pyyaml
 scikit-learn
 pandas
+pretty-html-table
 Pillow
